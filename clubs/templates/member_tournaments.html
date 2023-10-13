@@ -1,0 +1,30 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class = 'container'>
+  <div class = 'row'>
+    <div class = 'col-12'>
+      <h1>Your tournaments</h1>
+      {% if tournaments %}
+        <table class = 'table'>
+          <thead>
+            <tr>
+              <th scope = 'col'>ID:</th>
+              <th scope = 'col'>Tournament:</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for tournament in tournaments %}
+            <tr>
+              <th scope = 'row'>{{ tournament.id }}</th>
+              <td><a href = '{% url 'tournament_page' tournament.club.id tournament.id %}'>{{ tournament.name }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No tournaments joined.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

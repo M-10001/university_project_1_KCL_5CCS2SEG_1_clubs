@@ -1,0 +1,36 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class = 'container'>
+  <div class = 'row'>
+    <div class = 'col-12'>
+      <h1>Co-organisers</h1>
+      {% if co_organisers %}
+        <table class = 'table'>
+          <thead>
+            <tr>
+              <th scope = 'col'>Gravatar:</th>
+              <th scope = 'col'>Co-orgnaiser:</th>
+              <th scope = 'col'>Email:</th>
+              <th scope = 'col'></th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for entry in co_organisers %}
+            <tr>
+              <th scope = 'row'>
+                <img src="{{ entry.co_organiser.member.mini_gravatar }}" alt="Gravatar of {{ entry.co_organiser.member.email }}" class="rounded-circle" >
+              </th>
+              <td><a href = '{% url 'show_member' entry.co_organiser.member.id entry.co_organiser.club.id %}'>{{ entry.co_organiser.member_full_name }}</td>
+              <td>{{ entry.co_organiser.member.email }}</td>
+              <td><a class="btn btn-lg btn-secondary" href = '{% url 'remove_co_organiser' tournament.club.id entry.co_organiser.id tournament.id %}'>Remove co-organsiser</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p>No co-organisers added.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class = 'container'>
+  <div class = 'row'>
+    <div class = 'col-12'>
+      <h1>{{ tournament.name }}</h1>
+      <p>{{ tournament.description }}</p>
+      {% if not participant %}
+        <p>Participants: {{ tournament.total_participants }}</p>
+      {% endif %}
+      <h3>Upcoming matches:</h3>
+      {% if groups %}
+        {% for group in groups %}
+          {% if group.has_active_matches %}
+            <h5>
+              {{ group.type_label }}
+              {% if group.number %}
+                : {{ group.number }}
+              {% endif %}
+            </h5>
+              <table class = 'table'>
+                <thead>
+                  <tr>
+                    <th scope = 'col'>Match:</th>
+                    <th scope = 'col'>Player1:</th>
+                    <th scope = 'col'></th>
+                    <th scope = 'col'>Player2:</th>
+                    {% if not participant %}
+                      <th scope = 'col'></th>
+                    {% endif %}
+                  </tr>
+                </thead>
+                <tbody>
+                {% for tournament_match in group.tournamentmatch_set.all %}
+                  {% if not tournament_match.concluded %}
+                    <tr>
+                      <th scope = 'row'>{{ tournament_match.id }}</th>
+                      <td><a href = '{% url 'show_member' tournament_match.player1.participant.member.member.id tournament.club.id %}'>{{ tournament_match.player1.participant.member.member_full_name }}</td>
+                      <td>vs</td>
+                      <td><a href = '{% url 'show_member' tournament_match.player2.participant.member.member.id tournament.club.id %}'>{{ tournament_match.player2.participant.member.member_full_name }}</td>
+                      {% if not participant %}
+                        <td><a class="btn btn-lg btn-secondary" href="{% url 'set_tournament_match' tournament_match.tournament.club.id tournament_match.tournament.id tournament_match.id %}">Set match</a><td>
+                      {% endif %}
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+                </tbody>
+              </table>
+            {% endif %}
+        {% endfor %}
+      {% elif not participant and tournament.passed_deadline %}
+        <a class="btn btn-lg btn-secondary" href="{% url 'create_matches' tournament.club.id tournament.id %}">Create matches</a>
+      {% elif not tournament.passed_deadline %}
+        <p>Tournament matches will be available after:</p>
+        <p>{{ tournament.deadline }} UTC+0</p>
+      {% elif participant and participant.eliminated %}
+        <p>You have been eliminated.</p>
+      {% else %}
+        <p>No matches right now.</p>
+      {% endif %}
+      {% if tournament.organiser == membership %}
+        <p>
+          <a class="btn btn-lg btn-secondary" href="{% url 'available_officers_for_tournament' tournament.club.id tournament.id %}">Add co-organiser</a>
+          <a class="btn btn-lg btn-secondary" href="{% url 'co_organiser_list' tournament.club.id tournament.id %}">Remove co-organiser</a>
+        </p>
+      {% elif not tournament.passed_deadline or not participant %}
+        <p><a class="btn btn-lg btn-secondary" href='{% url 'leave_tournament' tournament.club.id tournament.id %}'>Leave tournamnet</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

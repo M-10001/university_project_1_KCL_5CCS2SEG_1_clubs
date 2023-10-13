@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-6 offset-md-3">
+      <h1>Chess Club</h1>
+      <p>Welcome to join our chess club!</p>
+      <p>
+        <a href='{% url 'sign_up' %}' class="btn btn-lg btn-secondary">
+          Sign up
+        </a>
+      </p>
+      <p>
+        <a href='{% url 'log_in' %}' class="btn btn-lg btn-secondary">
+                  Log in
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

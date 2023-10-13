@@ -1,0 +1,10 @@
+[
+  {
+    "model": "clubs.user",
+    "pk": 1,
+    "fields": {
+      "email": "test1@example.org",
+      "password": "pbkdf2_sha256$260000$u7cK7EjDENfa7XwHJbCEHk$JpS3JasjoJomuq2yb5Hb9sjDEICVLJ5zRLj+n23YfEg="
+    }
+  }
+]

@@ -1,0 +1,62 @@
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+  {% if membership %}
+    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'club_page' membership.club.id %}">Club page</a>
+      </li>
+      {% if not membership.is_applicant %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'member_list' membership.club.id %}">Members</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'joinable_tournaments' membership.club.id %}">Join tournaments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'member_tournaments' membership.club.id %}">Your tournaments</a>
+        </li>
+        {% if not membership.is_member %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'create_tournament' membership.club.id %}">Create tournament</a>
+          </li>
+        {% endif %}
+        {% if tournament %}
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'tournament_page' tournament.club.id tournament.id %}">Tournament page</a>
+          </li>
+        {% endif %}
+      {% endif %}
+      {% if membership.is_applicant %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'application_edit' membership.club.id %}">Edit application</a>
+        </li>
+      {% endif %}
+    </ul>
+  {% endif %}
+  <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+    {% if memberships %}
+      <li class="nav-item dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="clubs-part-of-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+          Your clubs
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="clubs-part-of-dropdown">
+          {% for entry in memberships %}
+            <li>
+              <a class="dropdown-item" href='{% url 'club_page' entry.club.id %}'>{{ entry.club.name }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </li>
+    {% endif %}
+    <li class="nav-item dropdown">
+      <a class="nav-link" href="#" id="user-account-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="bi-person-circle"></span>
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="user-account-dropdown">
+        <li><a class="dropdown-item" href="{% url 'create_club' %}">Create a club</a></li>
+        <li><a class="dropdown-item" href="{% url 'membership_sign_up' %}">Apply to a club</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="{% url 'log_out' %}">Log out</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>

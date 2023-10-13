@@ -1,0 +1,11 @@
+[
+  {
+      "model": "clubs.club",
+      "pk": 6,
+      "fields": {
+        "name": "Test Club",
+        "location": "Test Location 111",
+        "description": "This is a test Club"
+      }
+  }
+]

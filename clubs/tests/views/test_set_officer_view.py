@@ -1,0 +1,269 @@
+from django.test import TestCase
+from django.urls import reverse
+from clubs.models import User, Club, Membership
+from clubs.tests.helpers import LogInTester, reverse_with_next
+
+class SetOfficerViewTestCase(TestCase,LogInTester):
+    """Tests of the set officer view."""
+
+    fixtures = ['clubs/tests/fixtures/default_user.json',
+                'clubs/tests/fixtures/other_users.json',
+                'clubs/tests/fixtures/default_club.json'
+            ]
+
+    def setUp(self):
+        self.user = User.objects.get(email = 'test1@example.org')
+        self.user2 = User.objects.get(email = 'test2@example.org')
+        self.club = Club.objects.get(name = 'Test Club')
+        Membership.objects.create(
+            club = self.club,
+            member = self.user,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 1
+        )
+        Membership.objects.create(
+            club = self.club,
+            member = self.user2,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 3
+        )
+
+        self.url = reverse('set_officer', kwargs={
+                'club_id': self.club.id,
+                'user_id': self.user.id,
+            })
+
+    def test_set_officer_url(self):
+        self.assertEqual(self.url,f'/set_officer/{self.user.id}/{self.club.id}/')
+
+    def test_set_officer_when_not_logged_in(self):
+        self.assertFalse(self._is_logged_in())
+        redirect_url = reverse_with_next('log_in', self.url)
+        response = self.client.get(self.url)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_set_officer_without_membership(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        self.client.login(email = 'test3@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        redirect_url = reverse('user_page')
+        response = self.client.get(self.url,follow=True)
+        self.assertRedirects(response, redirect_url, status_code=302, target_status_code=200)
+
+    def test_successful_set_officer(self):
+        self.client.login(email = 'test2@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        response = self.client.get(self.url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count-1)
+        self.assertEqual(officer_after_count, officer_before_count+1)
+        new_membership = Membership.objects.filter(member_type=2).latest('member')
+        self.assertEqual(self.user, new_membership.member)
+        response_url = reverse('show_member', kwargs = {'user_id' : self.user.id, 'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'show_member.html')
+
+    def test_set_officer_with_officer_membership(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 2
+        )
+        self.client.login(email = 'test3@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        response = self.client.get(self.url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('show_member', kwargs = {'user_id' : self.user.id, 'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'show_member.html')
+
+    def test_set_officer_with_member_membership(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 1)
+        self.client.login(email = 'test3@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        response = self.client.get(self.url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('show_member', kwargs = {'user_id' : self.user.id, 'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'show_member.html')
+
+    def test_set_officer_with_applicant_membership(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 0)
+        self.client.login(email = 'test3@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        response = self.client.get(self.url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('club_page', kwargs = {'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'club_page.html')
+
+    def test_set_officer_to_officer(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 2)
+        self.client.login(email = 'test2@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        url = reverse('set_officer', kwargs={'club_id': self.club.id,'user_id': user3.id})
+        response = self.client.get(url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('show_member', kwargs = {'user_id' : user3.id, 'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'show_member.html')
+
+    def test_set_applicant_to_officer(self):
+        user3 = User.objects.get(email = 'test3@example.org')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 0)
+        self.client.login(email = 'test2@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        url = reverse('set_officer', kwargs={'club_id': self.club.id,'user_id': user3.id})
+        response = self.client.get(url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('show_member', kwargs = {'user_id' : user3.id, 'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'show_member.html')
+
+    def test_set_officer_to_officer_with_member_membership(self):
+        user3 = User.objects.get(email = 'test3@example.org' )
+        self.client.login(email = 'test1@example.org', password='Password123')
+        Membership.objects.create(
+            club = self.club,
+            member = user3,
+            member_first_name = 'first_name1',
+            member_last_name = 'last_name1',
+            member_contact_details = '0712345678',
+            member_personal_statement = 'My personal statement',
+            member_bio =  'my bio',
+            member_chess_experience_level = 0,
+            member_type = 2)
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        url = reverse('set_officer', kwargs={
+                'club_id': self.club.id,
+                'user_id': user3.id,
+            })
+        response = self.client.get(url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('member_list', kwargs = {'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'member_list.html')
+
+    def test_set_officer_with_invalid_club_id(self):
+        self.client.login(email = 'test2@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        url = reverse('set_officer', kwargs={
+                'club_id': self.club.id+9999,
+                'user_id': self.user.id,
+            })
+        response = self.client.get(url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('user_page')
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'user_page.html')
+
+    def test_set_officer_with_invalid_user_id(self):
+        self.client.login(email = 'test2@example.org', password='Password123')
+        self.assertTrue(self._is_logged_in())
+        member_before_count = Membership.objects.filter(member_type=1).count()
+        officer_before_count = Membership.objects.filter(member_type=2).count()
+        url = reverse('set_officer', kwargs={
+                'club_id': self.club.id,
+                'user_id': self.user.id+9999,
+            })
+        response = self.client.get(url,follow=True)
+        member_after_count = Membership.objects.filter(member_type=1).count()
+        officer_after_count = Membership.objects.filter(member_type=2).count()
+        self.assertEqual(member_after_count, member_before_count)
+        self.assertEqual(officer_after_count, officer_before_count)
+        response_url = reverse('member_list', kwargs = {'club_id' : self.club.id})
+        self.assertRedirects(response, response_url, status_code=302, target_status_code=200)
+        self.assertTemplateUsed(response, 'member_list.html')

@@ -1,0 +1,50 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Welcome to {{ club_and_owner_membership.club.name }}</h1>
+      <p>Location: {{ club_and_owner_membership.club.location }}</p>
+      <p>Description: {{ club_and_owner_membership.club.description }}</p>
+      <p>Current total members: {{ club_and_owner_membership.club.total_members }}</p>
+      <h3>Club owner:</h3>
+      <div class="row content">
+        <div class="col-12">
+          <img src="{{ club_and_owner_membership.member.gravatar }}" alt="Gravatar of {{ club_and_owner_membership.member_full_name }}" class="rounded-circle profile-image" >
+          <div class="profile-text">
+            <h5 class="profile-title">{{ club_and_owner_membership.member_full_name }}</h5>
+            {% if club_and_owner_membership.member_bio %}
+              <p class="profile-username">{{ club_and_owner_membership.member_bio }}</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% if tournaments %}
+        <h5>Ended tournamnets with winners:</h5>
+        <table class = 'table'>
+          <thead>
+            <tr>
+              <th scope = 'col'>ID:</th>
+              <th scope = 'col'>Tournament:</th>
+              <th scope = 'col'>Total participants:</th>
+              <th scope = 'col'>Winner:</th>
+              <th scope = 'col'>Description:</th>
+            </tr>
+          </thead>
+          <tbody>
+          {% for tournament in tournaments %}
+            <tr>
+              <th scope = 'row'>{{ tournament.id }}</th>
+              <td>{{ tournament.name }}</td>
+              <td>{{ tournament.total_participants }}</td>
+              <td>{{ tournament.get_winner.member.member_full_name }}</td>
+              <td>{{ tournament.description }}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

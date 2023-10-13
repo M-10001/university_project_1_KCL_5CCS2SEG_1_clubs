@@ -1,0 +1,32 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Users</h1>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope = 'col'>Gravatar:</th>
+            <th scope = 'col'>Name:</th>
+            <th scope = 'col'>Email:</th>
+            <th scope = 'col'>Bio:</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for entry in membership_list %}
+            <tr>
+              <th scope = 'row'>
+                <img src="{{ entry.member.mini_gravatar }}" alt="Gravatar of {{ entry.member.email }}" class="rounded-circle" >
+              </th>
+              <td><a href="{% url 'show_member' entry.member.id  entry.club.id %}">{{ entry.member_full_name }}</a></td>
+              <td>{{ entry.member.email }}</td>
+              <td>{{ entry.member_bio }}</td>
+            </tr>
+          {% endfor %}
+      </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

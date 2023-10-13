@@ -1,0 +1,63 @@
+<div class="row content">
+  <div class="col-12">
+    <img src="{{ member_membership.member.gravatar }}" alt="Gravatar of {{ member_membership.member.email }}" class="rounded-circle profile-image" >
+    <div class="profile-text">
+      <h3 class="profile-title">{{ member_membership.member_full_name }}</h3>
+      <p class="profile-username">{{ member_membership.member.email }}</p>
+    </div>
+  </div>
+</div>
+{% if not membership.is_member %}
+  <div class="row content">
+    <div class="col-12">
+      <h5>Contact Details:</h5>
+      <p class="profile-bio">{{ member_membership.member_contact_details }}</p>
+    </div>
+  </div>
+  {% if member_membership.member_personal_statement %}
+    <div class="row content">
+      <div class="col-12">
+        <h5>Personal Statement:</h5>
+        <p class="profile-bio">{{ member_membership.member_personal_statement }}</p>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+{% if member_membership.member_bio %}
+  <div class="row content">
+    <div class="col-12">
+      <h5>Biography:</h5>
+      <p class="profile-bio">{{ member_membership.member_bio }}</p>
+    </div>
+  </div>
+{% endif %}
+{% if not membership.is_member %}
+  <div class="row content">
+    <div class="col-12">
+      <h5>Chess experience level:</h5>
+      <p class="profile-bio">{{ member_membership.member_chess_experience_level_label }}</p>
+    </div>
+  </div>
+<div class="row content">
+  <div class="col-12">
+    <h5>Member type:</h5>
+    <p class="profile-bio">{{ member_membership.member_type_label }}</p>
+  </div>
+</div>
+<br>
+  {% if membership.is_officer or membership.is_club_owner %}
+    {% if member_membership.is_applicant %}
+    <a class="btn btn-lg btn-secondary" href="{% url 'set_member' member_membership.member.id member_membership.club.id %}">Set member</a>
+    <a class="btn btn-lg btn-secondary" href="{% url 'decline_application' member_membership.member.id member_membership.club.id %}">Decline application</a>
+    {% endif %}
+    {% if membership.is_club_owner %}
+      {% if member_membership.is_member %}
+      <a class="btn btn-lg btn-secondary" href="{% url 'set_officer' member_membership.member.id member_membership.club.id %}">Promote to officer</a>
+      {% endif %}
+      {% if member_membership.is_officer %}
+      <a class="btn btn-lg btn-secondary" href="{% url 'set_member' member_membership.member.id member_membership.club.id %}">Demote to member</a>
+      <a class="btn btn-lg btn-secondary" href="{% url 'set_owner' member_membership.member.id member_membership.club.id %}">Give ownership</a>
+      {% endif %}
+    {% endif %}
+  {% endif %}
+{% endif %}

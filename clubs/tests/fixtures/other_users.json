@@ -1,0 +1,37 @@
+[
+  {
+    "model": "clubs.user",
+    "pk": 2,
+    "fields": {
+      "email": "test2@example.org",
+      "password": "pbkdf2_sha256$260000$u7cK7EjDENfa7XwHJbCEHk$JpS3JasjoJomuq2yb5Hb9sjDEICVLJ5zRLj+n23YfEg="
+    }
+  },
+
+  {
+    "model": "clubs.user",
+    "pk": 3,
+    "fields": {
+      "email": "test3@example.org",
+      "password": "pbkdf2_sha256$260000$u7cK7EjDENfa7XwHJbCEHk$JpS3JasjoJomuq2yb5Hb9sjDEICVLJ5zRLj+n23YfEg="
+    }
+  },
+
+  {
+    "model": "clubs.user",
+    "pk": 4,
+    "fields": {
+      "email": "test4@example.org",
+      "password": "pbkdf2_sha256$260000$u7cK7EjDENfa7XwHJbCEHk$JpS3JasjoJomuq2yb5Hb9sjDEICVLJ5zRLj+n23YfEg="
+    }
+  },
+  
+  {
+    "model": "clubs.user",
+    "pk": 5,
+    "fields": {
+      "email": "test5@example.org",
+      "password": "pbkdf2_sha256$260000$u7cK7EjDENfa7XwHJbCEHk$JpS3JasjoJomuq2yb5Hb9sjDEICVLJ5zRLj+n23YfEg="
+    }
+  }
+]

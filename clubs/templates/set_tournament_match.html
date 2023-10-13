@@ -1,0 +1,17 @@
+{% extends 'base_content.html' %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-12">
+      <h1>Set tournament match</h1>
+      <form action="{% url 'set_tournament_match' tournament_match.tournament.club.id tournament_match.tournament.id tournament_match.id %}" method="post">
+        {% csrf_token %}
+        <br>
+        {% include 'partials/bootstrap_form.html' with form=form %}
+        <input type="submit" value="Set match" class="btn btn-primary">
+      </form>
+    </div>
+  </div>
+  <br>
+</div>
+{% endblock %}
